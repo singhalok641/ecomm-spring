@@ -19,6 +19,7 @@ import java.util.List;
 
 @RestController
 public class ProductController {
+    // Catalog operations use local storage; the supplier service is used only for imports.
     private final IProductService productService;
     private final IProductService supplierService;
     private final PitchService pitchService;
@@ -35,6 +36,7 @@ public class ProductController {
     }
 
     @GetMapping("/products")
+    // Spring resolves page, size and sort from query parameters; only the page content is returned.
     public ResponseEntity<List<ProductDto>> getAllProducts(@RequestParam(required = false) BigDecimal minPrice,
                                                            @RequestParam(required = false) BigDecimal maxPrice,
                                                            Pageable pageable) {
@@ -70,6 +72,7 @@ public class ProductController {
     }
 
     @PatchMapping("/products/{id}")
+    // Patch DTOs distinguish omitted fields from fields explicitly set to null.
     public ResponseEntity<ProductDto> patchProduct(@PathVariable("id") Long id,
                                                    @RequestBody ProductPatchDto productPatchDto) {
         if (productPatchDto == null) {
@@ -84,6 +87,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/products/{id}")
+    // The storage service performs a soft delete, making the product inactive.
     public ResponseEntity<Void> deleteProduct(@PathVariable("id") Long id) {
         if (!productService.deleteProduct(id)) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -92,6 +96,7 @@ public class ProductController {
     }
 
     @PostMapping("/products/import")
+    // Fetch supplier products and persist each through the normal catalog service.
     public String importProducts(@RequestParam(required = false) BigDecimal minPrice,
                                  @RequestParam(required = false) BigDecimal maxPrice,Pageable pageable) {
         System.out.println("Importing from 3p");
@@ -104,6 +109,7 @@ public class ProductController {
     }
 
     @GetMapping("/products/{id}/pitch")
+    // PitchService falls back to a canned notification when the Groq request fails.
     public ResponseEntity<ProductPitchDto> getProductPitch(@PathVariable("id") Long id) {
         if (id < 1) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
