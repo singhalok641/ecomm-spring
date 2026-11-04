@@ -1,4 +1,4 @@
-package com.example.ecomm;
+package com.example.ecomm.utils;
 
 public class ArrayUtil {
 

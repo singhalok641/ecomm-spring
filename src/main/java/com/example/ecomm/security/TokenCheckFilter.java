@@ -1,21 +1,15 @@
 package com.example.ecomm.security;
 
+import com.example.ecomm.clients.AuthClient;
 import com.example.ecomm.dtos.AuthUserDto;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.restclient.RestTemplateBuilder;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -23,13 +17,10 @@ import java.io.IOException;
 @Component
 public class TokenCheckFilter extends OncePerRequestFilter {
 
-    private final RestTemplate restTemplate;
-    private final String authServiceUrl;
+    private final AuthClient authClient;
 
-    public TokenCheckFilter(RestTemplateBuilder restTemplateBuilder,
-                            @Value("${auth.service.url}") String authServiceUrl) {
-        this.restTemplate = restTemplateBuilder.build();
-        this.authServiceUrl = authServiceUrl;
+    public TokenCheckFilter(AuthClient authClient) {
+        this.authClient = authClient;
     }
 
     @Override
@@ -48,12 +39,7 @@ public class TokenCheckFilter extends OncePerRequestFilter {
 
         AuthUserDto user;
         try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", header);
-            ResponseEntity<AuthUserDto> answer = restTemplate.exchange(
-                    authServiceUrl + "/auth/validateToken", HttpMethod.GET,
-                    new HttpEntity<>(headers), AuthUserDto.class);
-            user = answer.getBody();
+            user = authClient.validateToken(header);
         } catch (HttpClientErrorException.Unauthorized e) {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             return;

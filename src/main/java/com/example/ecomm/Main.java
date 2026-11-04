@@ -1,12 +1,7 @@
 package com.example.ecomm;
 
 
-import com.example.ecomm.models.Product;
-
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import com.example.ecomm.utils.ArrayUtil;
 
 public class Main {
 

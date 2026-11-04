@@ -5,14 +5,13 @@ import com.example.ecomm.dtos.DummyJsonProductListDto;
 import com.example.ecomm.dtos.ProductPatchDto;
 import com.example.ecomm.models.Category;
 import com.example.ecomm.models.Product;
-import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -21,10 +20,10 @@ import java.util.List;
 @Service
 public class DummyJsonProductService implements IProductService{
 
-    private final RestTemplate restTemplate;
-    // Could not autowire. No beans of 'RestTemplate' type found.
-    DummyJsonProductService(RestTemplateBuilder restTemplate) {
-        this.restTemplate = restTemplate.build();
+    private final RestClient restClient;
+
+    DummyJsonProductService(RestClient.Builder restClientBuilder) {
+        this.restClient = restClientBuilder.build();
     }
 
 
@@ -33,8 +32,10 @@ public class DummyJsonProductService implements IProductService{
         /// https://dummyjson.com/products/1
         try {
             ResponseEntity<DummyJsonProductDto> response =
-                    restTemplate.getForEntity("https://dummyjson.com/products/{id}",
-                            DummyJsonProductDto.class, id);
+                    restClient.get()
+                            .uri("https://dummyjson.com/products/{id}", id)
+                            .retrieve()
+                            .toEntity(DummyJsonProductDto.class);
 
             System.out.println("Service called:" + response.getStatusCode());
 
@@ -50,8 +51,10 @@ public class DummyJsonProductService implements IProductService{
                                         @RequestParam(required = false) BigDecimal maxPrice, Pageable pageable) {
         /// https://dummyjson.com/products?limit=0  ->  { "products": [ ... ] }
         System.out.println("Getting all products");
-        ResponseEntity<DummyJsonProductListDto> response = restTemplate.getForEntity(
-                "https://dummyjson.com/products?limit=0", DummyJsonProductListDto.class);
+        ResponseEntity<DummyJsonProductListDto> response = restClient.get()
+                .uri("https://dummyjson.com/products?limit=0")
+                .retrieve()
+                .toEntity(DummyJsonProductListDto.class);
 
         List<Product> products = new ArrayList<>();
         for (DummyJsonProductDto dto : response.getBody().getProducts()) {

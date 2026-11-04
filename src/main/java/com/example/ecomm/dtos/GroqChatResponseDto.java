@@ -48,7 +48,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class GroqResponseDto {
+public class GroqChatResponseDto {
 
     private List<Choice> choices;
 
