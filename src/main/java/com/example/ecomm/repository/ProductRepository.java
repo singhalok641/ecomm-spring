@@ -13,11 +13,12 @@ import org.springframework.data.repository.query.Param;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, Long> {
+public interface ProductRepository extends JpaRepository<Product, UUID> {
     // select * from table where id = x and state = y
-    Optional<Product> findByIdAndState(Long id, State state);
+    Optional<Product> findByIdAndState(UUID id, State state);
 
 //    List<Product> findAllByState(State state);
 

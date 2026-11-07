@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -33,7 +34,7 @@ public class StorageProductService implements IProductService {
     }
 
     @Override
-    public Product getProductById(Long id) {
+    public Product getProductById(UUID id) {
         return productRepository.findByIdAndState(id, State.ACTIVE).orElse(null);
     }
 
@@ -57,7 +58,7 @@ public class StorageProductService implements IProductService {
 
     @Override
     @Transactional
-    public Product replaceProduct(Product input, Long id) {
+    public Product replaceProduct(Product input, UUID id) {
         Optional<Product> optionalProduct = productRepository.findByIdAndState(id, State.ACTIVE);
         if (optionalProduct.isEmpty()) {
             return null;
@@ -72,7 +73,7 @@ public class StorageProductService implements IProductService {
 
     @Override
     @Transactional
-    public Product patchProduct(ProductPatchDto patch, Long id) {
+    public Product patchProduct(ProductPatchDto patch, UUID id) {
         Optional<Product> optionalProduct = productRepository.findByIdAndState(id, State.ACTIVE);
         if (optionalProduct.isEmpty()) {
             return null;
@@ -96,7 +97,7 @@ public class StorageProductService implements IProductService {
 
     @Override
     @Transactional
-    public boolean deleteProduct(Long id) {
+    public boolean deleteProduct(UUID id) {
         Optional<Product> optionalProduct = productRepository.findByIdAndState(id, State.ACTIVE);
         if (optionalProduct.isEmpty()) {
             return false;

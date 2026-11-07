@@ -11,3 +11,7 @@ public class Category extends BaseModel {
     private String name;
     private String description;
 }
+
+/*
+MODIFY COLUMN id binary(16) -> FAILS
+ */

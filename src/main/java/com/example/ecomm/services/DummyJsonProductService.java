@@ -16,6 +16,7 @@ import org.springframework.web.client.RestClient;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class DummyJsonProductService implements IProductService{
@@ -28,22 +29,9 @@ public class DummyJsonProductService implements IProductService{
 
 
     @Override
-    public Product getProductById(Long id) {
+    public Product getProductById(UUID id) {
         /// https://dummyjson.com/products/1
-        try {
-            ResponseEntity<DummyJsonProductDto> response =
-                    restClient.get()
-                            .uri("https://dummyjson.com/products/{id}", id)
-                            .retrieve()
-                            .toEntity(DummyJsonProductDto.class);
-
-            System.out.println("Service called:" + response.getStatusCode());
-
-            return from(response.getBody());
-        } catch (HttpClientErrorException.NotFound e) {
-            return null;
-        }
-
+       return null;
     }
 
     @Override
@@ -70,17 +58,17 @@ public class DummyJsonProductService implements IProductService{
     }
 
     @Override
-    public Product replaceProduct(Product product, Long id) {
+    public Product replaceProduct(Product product, UUID id) {
         throw new IllegalStateException("Replacement denied");
     }
 
     @Override
-    public Product patchProduct(ProductPatchDto patch, Long id) {
+    public Product patchProduct(ProductPatchDto patch, UUID id) {
         throw new IllegalStateException("Patching denied");
     }
 
     @Override
-    public boolean deleteProduct(Long id) {
+    public boolean deleteProduct(UUID id) {
         throw new IllegalStateException("Deletion denied");
     }
 

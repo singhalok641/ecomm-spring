@@ -1,24 +1,21 @@
 package com.example.ecomm.models;
 
-
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.util.Date;
+import java.util.UUID;
 
 @Getter
 @Setter
 @MappedSuperclass
 public abstract class BaseModel {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
+    private UUID id; // Hibernate maps this to BINARY(16) - 16 raw bytes -> BIN_TO_UUID(id)
 
     private Date createdAt;
     private Date lastUpdatedAt;

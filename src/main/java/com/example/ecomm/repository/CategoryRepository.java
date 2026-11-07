@@ -8,8 +8,9 @@ import org.springframework.stereotype.Repository;
 import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface CategoryRepository extends JpaRepository<Category, Long> {
+public interface CategoryRepository extends JpaRepository<Category, UUID> {
     Optional<Category> findByName(String name);
 }

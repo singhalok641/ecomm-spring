@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 public class ProductController {
@@ -47,7 +48,7 @@ public class ProductController {
     }
 
     @GetMapping("/products/{id}")
-    public ResponseEntity<ProductDto> getProductById(@PathVariable("id") Long id) {
+    public ResponseEntity<ProductDto> getProductById(@PathVariable("id") UUID id) {
         Product product = productService.getProductById(id);
         if (product == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -62,7 +63,7 @@ public class ProductController {
     }
 
     @PutMapping("/products/{id}")
-    public ResponseEntity<ProductDto> replaceProduct(@PathVariable("id") Long id,
+    public ResponseEntity<ProductDto> replaceProduct(@PathVariable("id") UUID id,
                                                      @RequestBody ProductDto productDto) {
         Product replaced = productService.replaceProduct(productMapper.toEntity(productDto), id);
         if (replaced == null) {
@@ -73,7 +74,7 @@ public class ProductController {
 
     @PatchMapping("/products/{id}")
     // Patch DTOs distinguish omitted fields from fields explicitly set to null.
-    public ResponseEntity<ProductDto> patchProduct(@PathVariable("id") Long id,
+    public ResponseEntity<ProductDto> patchProduct(@PathVariable("id") UUID id,
                                                    @RequestBody ProductPatchDto productPatchDto) {
         if (productPatchDto == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -88,7 +89,7 @@ public class ProductController {
 
     @DeleteMapping("/products/{id}")
     // The storage service performs a soft delete, making the product inactive.
-    public ResponseEntity<Void> deleteProduct(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> deleteProduct(@PathVariable("id") UUID id) {
         if (!productService.deleteProduct(id)) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -110,11 +111,7 @@ public class ProductController {
 
     @GetMapping("/products/{id}/pitch")
     // PitchService falls back to a canned notification when the Groq request fails.
-    public ResponseEntity<ProductPitchDto> getProductPitch(@PathVariable("id") Long id) {
-        if (id < 1) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
+    public ResponseEntity<ProductPitchDto> getProductPitch(@PathVariable("id") UUID id) {
         Product product = productService.getProductById(id);
         if (product == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

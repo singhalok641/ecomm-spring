@@ -9,6 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -26,14 +27,14 @@ class ProductMapperTest {
         Category category = new Category();
         category.setName("beauty");
         Product product = new Product();
-        product.setId(1L);
+        product.setId(UUID.fromString("00000000-0000-0000-0000-000000000001"));
         product.setName("Mascara");
         product.setPrice(new BigDecimal("9.99"));
         product.setCategory(category);
 
         ProductDto dto = mapper.toDto(product);
 
-        assertThat(dto.getId()).isEqualTo(1L);
+        assertThat(dto.getId()).isEqualTo(UUID.fromString("00000000-0000-0000-0000-000000000001"));
         assertThat(dto.getName()).isEqualTo("Mascara");
         assertThat(dto.getPrice()).isEqualTo(new BigDecimal("9.99"));
         assertThat(dto.getCategory().getName()).isEqualTo("beauty");
