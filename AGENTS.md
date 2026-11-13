@@ -31,11 +31,13 @@ Run a single test class (works offline, no DB):
 
 ### The test suite needs a real database
 
-`EcommApplicationTests` is a `@SpringBootTest` that boots the full context, so it opens a Hikari connection to
-`jdbc:mysql://localhost:3306/productcatalogservicetest` and runs Hibernate `ddl-auto=update`. It fails without MySQL
-up. `ProductMapperTest` is a plain unit test and needs nothing.
+`EcommApplicationTests` is a `@SpringBootTest` that boots the full context, so it opens a Hikari connection and runs
+Flyway + Hibernate schema validation. With no profile activated it uses `src/main/resources/application.properties`
+(`jdbc:mysql://localhost:3306/productcatalogservice`); activate the `test` profile to point it at
+`productcatalogservice_test` instead. It fails without MySQL up. The other test classes are plain unit/Mockito tests
+and need nothing.
 
-Current state: **5 tests, all passing** (4 mapper + 1 context load).
+Current state: **20 tests, all passing** (8 patch service + 4 mapper + 3 patch DTO + 4 array util + 1 context load).
 
 Known benign warnings: `spring.jpa.open-in-view is enabled by default`, and Mockito self-attaching its inline-mock
 agent (will break on future JDKs unless configured as a `-javaagent`).
@@ -44,12 +46,15 @@ agent (will break on future JDKs unless configured as a `-javaagent`).
 
 | File | Notes |
 |---|---|
-| `src/main/resources/application.properties` | dev defaults; plaintext root password, `ddl-auto=update`, `show-sql=true`, port defaults to 8080 |
-| `src/main/resources/application-prod.properties` | `shopnest_app` user, `DB_PASSWORD` env var, `show-sql=false`, `ddl-auto=validate` |
+| `src/main/resources/application.properties` | the only profile file for real runs: `productcatalogservice` DB / `productcatalogservice_user`, `ddl-auto=validate`, `show-sql=true`, Flyway enabled, port defaults to 8080 |
+| `src/main/resources/application-test.properties` | overrides `spring.datasource.url` to `productcatalogservice_test` (with `createDatabaseIfNotExist=true`); picked up only when the `test` profile is active (`-Dspring.profiles.active=test`) |
+| `src/main/resources/db/migration/` | Flyway migrations, run at startup; `ddl-auto=validate` means the entities must match them |
 | `.env` | gitignored, loaded via `spring.config.import=optional:file:.env`; template in `.env.example` |
 
-Required env vars: `GROQ_API_KEY` (for `PitchService`), `AUTH_SERVICE_URL` (defaults to `http://localhost:8081`),
-`DB_PASSWORD` (prod profile only).
+There is **no `application-prod.properties`** any more — deployment differences are expected to come from env
+vars/profiles layered on top of `application.properties`.
+
+Required env vars: `GROQ_API_KEY` (for `PitchService`), `AUTH_SERVICE_URL` (defaults to `http://localhost:8081`).
 
 ## Code layout
 
@@ -70,7 +75,7 @@ src/main/java/com/example/ecomm/
 └── security/TokenCheckFilter.java         OncePerRequestFilter, auto-registered (no Spring Security on classpath)
 ```
 
-Endpoints (all in `ProductController`): `GET /products`, `GET /products/{id}`, `POST /products`,
+Endpoints (all in `ProductController`, covered by `ProductControllerTest`): `GET /products`, `GET /products/{id}`, `POST /products`,
 `PATCH /products/{id}`, `PUT /products/{id}`, `DELETE /products/{id}`, `POST /products/import`,
 `GET /products/{id}/pitch`. Also `GET /actuator` (actuator starter).
 
