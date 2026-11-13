@@ -19,6 +19,7 @@ import org.mockito.quality.Strictness;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -29,6 +30,11 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT) // shared fixtures below are not used by every test
 class StorageProductServicePatchTest {
+
+    private static final UUID PRODUCT_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID MISSING_ID = UUID.fromString("00000000-0000-0000-0000-000000000099");
+    private static final UUID CATEGORY_ID = UUID.fromString("00000000-0000-0000-0000-000000000007");
+    private static final UUID NEW_CATEGORY_ID = UUID.fromString("00000000-0000-0000-0000-000000000042");
 
     @Mock
     private ProductRepository productRepository;
@@ -45,12 +51,12 @@ class StorageProductServicePatchTest {
         service = new StorageProductService(productRepository, categoryRepository);
 
         storedCategory = new Category();
-        storedCategory.setId(7L);
+        storedCategory.setId(CATEGORY_ID);
         storedCategory.setName("beauty");
         storedCategory.setDescription("makeup");
 
         stored = new Product();
-        stored.setId(1L);
+        stored.setId(PRODUCT_ID);
         stored.setName("Mascara");
         stored.setDescription("Volumising mascara");
         stored.setPrice(new BigDecimal("9.99"));
@@ -59,7 +65,7 @@ class StorageProductServicePatchTest {
         stored.setState(State.ACTIVE);
         stored.setCreatedAt(new Date(1_000L));
 
-        when(productRepository.findByIdAndState(1L, State.ACTIVE)).thenReturn(Optional.of(stored));
+        when(productRepository.findByIdAndState(PRODUCT_ID, State.ACTIVE)).thenReturn(Optional.of(stored));
         when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
     }
 
@@ -69,7 +75,7 @@ class StorageProductServicePatchTest {
         ProductPatchDto patch = new ProductPatchDto();
         patch.setPrice(Optional.of(new BigDecimal("12.50")));
 
-        Product patched = service.patchProduct(patch, 1L);
+        Product patched = service.patchProduct(patch, PRODUCT_ID);
 
         assertThat(patched.getPrice()).isEqualByComparingTo("12.50");
         assertThat(patched.getName()).isEqualTo("Mascara");
@@ -88,7 +94,7 @@ class StorageProductServicePatchTest {
         patch.setDescription(Optional.empty());
         patch.setImageUrl(Optional.empty());
 
-        Product patched = service.patchProduct(patch, 1L);
+        Product patched = service.patchProduct(patch, PRODUCT_ID);
 
         assertThat(patched.getDescription()).isNull();
         assertThat(patched.getImageUrl()).isNull();
@@ -98,7 +104,7 @@ class StorageProductServicePatchTest {
     @Test
     @DisplayName("an empty patch still bumps lastUpdatedAt and saves")
     void patch_emptyPatchOnlyTouchesTimestamp() {
-        Product patched = service.patchProduct(new ProductPatchDto(), 1L);
+        Product patched = service.patchProduct(new ProductPatchDto(), PRODUCT_ID);
 
         assertThat(patched.getName()).isEqualTo("Mascara");
         assertThat(patched.getLastUpdatedAt()).isNotNull();
@@ -108,9 +114,9 @@ class StorageProductServicePatchTest {
     @Test
     @DisplayName("an unknown or inactive product returns null and is not saved")
     void patch_missingProduct_returnsNull() {
-        when(productRepository.findByIdAndState(99L, State.ACTIVE)).thenReturn(Optional.empty());
+        when(productRepository.findByIdAndState(MISSING_ID, State.ACTIVE)).thenReturn(Optional.empty());
 
-        assertThat(service.patchProduct(new ProductPatchDto(), 99L)).isNull();
+        assertThat(service.patchProduct(new ProductPatchDto(), MISSING_ID)).isNull();
         verify(productRepository, never()).save(any(Product.class));
     }
 
@@ -119,7 +125,7 @@ class StorageProductServicePatchTest {
     void patch_categoryByName_reusesExisting() {
         when(categoryRepository.findByName("beauty")).thenReturn(Optional.of(storedCategory));
 
-        Product patched = service.patchProduct(categoryPatch(Optional.of("beauty"), null), 1L);
+        Product patched = service.patchProduct(categoryPatch(Optional.of("beauty"), null), PRODUCT_ID);
 
         assertThat(patched.getCategory()).isSameAs(storedCategory);
         verify(categoryRepository, never()).save(any(Category.class));
@@ -131,14 +137,14 @@ class StorageProductServicePatchTest {
         when(categoryRepository.findByName("home")).thenReturn(Optional.empty());
         when(categoryRepository.save(any(Category.class))).thenAnswer(invocation -> {
             Category created = invocation.getArgument(0);
-            created.setId(42L);
+            created.setId(NEW_CATEGORY_ID);
             return created;
         });
 
-        Product patched = service.patchProduct(categoryPatch(Optional.of("home"), null), 1L);
+        Product patched = service.patchProduct(categoryPatch(Optional.of("home"), null), PRODUCT_ID);
 
         assertThat(patched.getCategory().getName()).isEqualTo("home");
-        assertThat(patched.getCategory().getId()).isEqualTo(42L);
+        assertThat(patched.getCategory().getId()).isEqualTo(NEW_CATEGORY_ID);
     }
 
     @Test
@@ -147,7 +153,7 @@ class StorageProductServicePatchTest {
         when(categoryRepository.findByName("beauty")).thenReturn(Optional.of(storedCategory));
         when(categoryRepository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        Product patched = service.patchProduct(categoryPatch(null, Optional.of("clean beauty")), 1L);
+        Product patched = service.patchProduct(categoryPatch(null, Optional.of("clean beauty")), PRODUCT_ID);
 
         assertThat(patched.getCategory()).isSameAs(storedCategory);
         assertThat(storedCategory.getDescription()).isEqualTo("clean beauty");
@@ -160,7 +166,7 @@ class StorageProductServicePatchTest {
         ProductPatchDto patch = new ProductPatchDto();
         patch.setCategory(Optional.empty());
 
-        Product patched = service.patchProduct(patch, 1L);
+        Product patched = service.patchProduct(patch, PRODUCT_ID);
 
         assertThat(patched.getCategory()).isNull();
         verify(categoryRepository, never()).save(any(Category.class));
