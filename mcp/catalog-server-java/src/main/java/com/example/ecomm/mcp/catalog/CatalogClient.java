@@ -84,6 +84,11 @@ public final class CatalogClient {
     }
 
     public Product product(long id) {
+        return product(Long.toString(id));
+    }
+
+    public Product product(String id) {
+        validateProductId(id);
         try {
             return mapper.readValue(get("/products/" + id), Product.class);
         } catch (ProductNotFoundException e) {
@@ -92,10 +97,21 @@ public final class CatalogClient {
     }
 
     public Pitch pitch(long id) {
+        return pitch(Long.toString(id));
+    }
+
+    public Pitch pitch(String id) {
+        validateProductId(id);
         try {
             return mapper.readValue(get("/products/" + id + "/pitch"), Pitch.class);
         } catch (ProductNotFoundException e) {
             throw new ProductNotFoundException("No active product with id " + id + ".");
+        }
+    }
+
+    private static void validateProductId(String id) {
+        if (id == null || !id.matches("[1-9][0-9]*|(?i:[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})")) {
+            throw new IllegalArgumentException("Product id must be a UUID or a positive integer.");
         }
     }
 

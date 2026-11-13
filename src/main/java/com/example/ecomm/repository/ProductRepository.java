@@ -20,7 +20,17 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     // select * from table where id = x and state = y
     Optional<Product> findByIdAndState(UUID id, State state);
 
-//    List<Product> findAllByState(State state);
+    @EntityGraph(attributePaths = "category")
+    List<Product> findAllByState(State state);
+
+    @EntityGraph(attributePaths = "category")
+    Page<Product> findAllByState(State state, Pageable pageable);
+
+    @EntityGraph(attributePaths = "category")
+    Page<Product> findByPriceBetweenAndState(BigDecimal minPrice, BigDecimal maxPrice, State state, Pageable pageable);
+
+    @Query("SELECT AVG(p.price) FROM Product p WHERE p.category.name = :categoryName AND p.state = :state")
+    Double findAveragePriceInCategory(@Param("categoryName") String categoryName, @Param("state") State state);
 
     // Query-returning Page must have a Pageable parameter.
     @EntityGraph(attributePaths = "category")

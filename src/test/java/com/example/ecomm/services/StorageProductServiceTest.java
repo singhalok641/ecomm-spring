@@ -47,19 +47,19 @@ public class StorageProductServiceTest {
         assertThat(captor.getValue().getLastUpdatedAt()).isNotNull();
     }
 
-//    @Test
-//    void searchProducts_onlyMinPrice_filtersByMinPrice() {
-//        Pageable pageable = PageRequest.of(0, 10);
-//
-//        // Act: Customer sends minPrice = 100, but maxPrice = null (no upper limit)
-//        storageProductService.searchProducts(new BigDecimal("100"), null, pageable);
-//
-//        // Assert: Check productRepo's clipboard — did the service call the price-filter method?
-//        verify(productRepo).findByPriceBetweenAndState(
-//                eq(new BigDecimal("100")),
-//                any(BigDecimal.class),
-//                eq(State.ACTIVE),
-//                eq(pageable)
-//        );
-//    }
+    @Test
+    void searchProducts_onlyMinPrice_filtersByMinPrice() {
+        Pageable pageable = PageRequest.of(0, 10);
+
+        // Act: Customer sends minPrice = 100, but maxPrice = null (no upper limit)
+        storageProductService.searchProducts(new BigDecimal("100"), null, pageable);
+
+        // Assert: Check productRepo's clipboard — did the service call the price-filter method?
+        verify(productRepo).findByPriceBetweenAndState(
+                eq(new BigDecimal("100")),
+                any(BigDecimal.class),
+                eq(State.ACTIVE),
+                eq(pageable)
+        );
+    }
 }

@@ -116,17 +116,18 @@ class CatalogClientTest {
     @DisplayName("a product id is fetched and decoded into the record")
     void fetchProduct() {
         responder = path -> new Reply(200, """
-                {"id":2,"name":"Wireless Mouse","description":"2.4GHz wireless mouse","price":25.00,
-                 "imageUrl":"mouse.png","category":{"id":null,"name":"electronics","description":"Gadgets"}}
+                {"id":"019a4d20-9400-7000-8000-000000000002","name":"Wireless Mouse","description":"2.4GHz wireless mouse","price":25.00,
+                 "imageUrl":"mouse.png","category":{"id":"019a4d20-9400-7000-8000-000000000003","name":"electronics","description":"Gadgets"}}
                 """);
 
-        Product product = client.product(2);
+        Product product = client.product("019a4d20-9400-7000-8000-000000000002");
 
-        assertEquals(2L, product.id());
+        assertEquals("019a4d20-9400-7000-8000-000000000002", product.id());
+        assertEquals("019a4d20-9400-7000-8000-000000000003", product.category().id());
         assertEquals("Wireless Mouse", product.name());
         assertEquals(new BigDecimal("25.00"), product.price());
         assertEquals("electronics", product.category().name());
-        assertTrue(requestedPaths.get(0).equals("/products/2"), requestedPaths.get(0));
+        assertTrue(requestedPaths.get(0).equals("/products/019a4d20-9400-7000-8000-000000000002"), requestedPaths.get(0));
     }
 
     @Test

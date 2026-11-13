@@ -39,7 +39,7 @@ public final class Search {
     }
 
     /** The fields a caller needs, with the category flattened to its name. */
-    public record Summary(Long id, String name, BigDecimal price, String category, String description) {
+    public record Summary(String id, String name, BigDecimal price, String category, String description) {
     }
 
     /** @param total every match, before the limit is applied */

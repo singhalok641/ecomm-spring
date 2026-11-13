@@ -127,9 +127,10 @@ public final class CatalogMcpServer {
 
     private static SyncToolSpecification getProductTool(CatalogClient client) {
         Map<String, Object> properties = Map.of("id", Map.of(
-                "type", "integer",
-                "minimum", 1,
-                "description", "Product id."));
+                "anyOf", List.of(
+                        Map.of("type", "string", "format", "uuid"),
+                        Map.of("type", "integer", "minimum", 1)),
+                "description", "Product UUID or numeric id returned by the catalog."));
 
         return tool("get_product",
                 "Get product",
@@ -137,7 +138,7 @@ public final class CatalogMcpServer {
                 objectSchema(properties, List.of("id")),
                 (exchange, request) -> {
                     try {
-                        return ok(client.product(intArg(arguments(request), "id", 0)));
+                        return ok(client.product(stringArg(arguments(request), "id")));
                     } catch (RuntimeException e) {
                         return fail(e);
                     }
@@ -165,9 +166,10 @@ public final class CatalogMcpServer {
 
     private static SyncToolSpecification getProductPitchTool(CatalogClient client) {
         Map<String, Object> properties = Map.of("id", Map.of(
-                "type", "integer",
-                "minimum", 1,
-                "description", "Product id."));
+                "anyOf", List.of(
+                        Map.of("type", "string", "format", "uuid"),
+                        Map.of("type", "integer", "minimum", 1)),
+                "description", "Product UUID or numeric id returned by the catalog."));
 
         return tool("get_product_pitch",
                 "Get product pitch",
@@ -176,7 +178,7 @@ public final class CatalogMcpServer {
                 objectSchema(properties, List.of("id")),
                 (exchange, request) -> {
                     try {
-                        return ok(client.pitch(intArg(arguments(request), "id", 0)));
+                        return ok(client.pitch(stringArg(arguments(request), "id")));
                     } catch (RuntimeException e) {
                         return fail(e);
                     }

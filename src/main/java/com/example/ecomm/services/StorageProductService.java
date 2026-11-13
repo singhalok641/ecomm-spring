@@ -44,6 +44,21 @@ public class StorageProductService implements IProductService {
         return productRepository.findAllByPriceBetweenAndState(minPrice, maxPrice, State.ACTIVE, pageable);
     }
 
+    public List<Product> getAllProducts() {
+        return productRepository.findAllByState(State.ACTIVE);
+    }
+
+    public Page<Product> searchProducts(BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
+        if (minPrice == null && maxPrice == null) {
+            return productRepository.findAllByState(State.ACTIVE, pageable);
+        }
+
+        BigDecimal min = minPrice == null ? BigDecimal.ZERO : minPrice;
+        BigDecimal max = maxPrice ==null ? new BigDecimal("10000000") : maxPrice;
+        return productRepository.findByPriceBetweenAndState(min, max, State.ACTIVE, pageable);
+
+    }
+
     @Override
     @Transactional
     public Product createProduct(Product input) {

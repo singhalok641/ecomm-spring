@@ -15,13 +15,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class SearchTest {
 
     private static final Product MOUSE = product(
-            2L, "Wireless Mouse", "2.4GHz wireless mouse", "25.00", "electronics");
+            "2", "Wireless Mouse", "2.4GHz wireless mouse", "25.00", "electronics");
     private static final Product KEYBOARD = product(
-            3L, "Mechanical Keyboard", "Hot-swappable mechanical keyboard", "89.99", "electronics");
+            "3", "Mechanical Keyboard", "Hot-swappable mechanical keyboard", "89.99", "electronics");
     private static final Product YOGA_MAT = product(
-            4L, "Yoga Mat", "Non-slip yoga mat", "19.99", "fitness");
+            "4", "Yoga Mat", "Non-slip yoga mat", "19.99", "fitness");
     private static final Product ORPHAN = new Product(
-            5L, "Mystery Box", null, new BigDecimal("5.00"), null, null);
+            "5", "Mystery Box", null, new BigDecimal("5.00"), null, null);
 
     private static final List<Product> CATALOG = List.of(MOUSE, KEYBOARD, YOGA_MAT, ORPHAN);
 
@@ -67,8 +67,8 @@ class SearchTest {
     @Test
     @DisplayName("sort price_asc, price_desc and name")
     void sorting() {
-        assertEquals(List.of(5L, 4L, 2L, 3L), ids(Search.search(CATALOG, null, null, Search.Sort.PRICE_ASC, 10)));
-        assertEquals(List.of(3L, 2L, 4L, 5L), ids(Search.search(CATALOG, null, null, Search.Sort.PRICE_DESC, 10)));
+        assertEquals(List.of("5", "4", "2", "3"), ids(Search.search(CATALOG, null, null, Search.Sort.PRICE_ASC, 10)));
+        assertEquals(List.of("3", "2", "4", "5"), ids(Search.search(CATALOG, null, null, Search.Sort.PRICE_DESC, 10)));
         assertEquals(
                 List.of("Mechanical Keyboard", "Mystery Box", "Wireless Mouse", "Yoga Mat"),
                 Search.search(CATALOG, null, null, Search.Sort.NAME, 10).products().stream()
@@ -80,13 +80,13 @@ class SearchTest {
     @DisplayName("relevance ranks name hits above description-only hits")
     void relevanceRanking() {
         Product descriptionOnly = product(
-                6L, "Desk Pad", "Pairs with your mouse", "30.00", "electronics");
+                "6", "Desk Pad", "Pairs with your mouse", "30.00", "electronics");
         Product phone = product(
-                7L, "Mouse Pad", "Pairs with your mouse", "8.00", "electronics");
+                "7", "Mouse Pad", "Pairs with your mouse", "8.00", "electronics");
 
         // Both match the description and name terms; the one with the term in its name comes first.
-        List<Long> ids = ids(Search.search(List.of(descriptionOnly, phone), "mouse", null, Search.Sort.RELEVANCE, 10));
-        assertEquals(List.of(7L, 6L), ids);
+        List<String> ids = ids(Search.search(List.of(descriptionOnly, phone), "mouse", null, Search.Sort.RELEVANCE, 10));
+        assertEquals(List.of("7", "6"), ids);
     }
 
     @Test
@@ -96,7 +96,7 @@ class SearchTest {
 
         assertEquals(2, result.total());
         assertEquals(1, result.products().size());
-        assertEquals(2L, result.products().get(0).id(), "cheapest electronics product first under relevance");
+        assertEquals("2", result.products().get(0).id(), "cheapest electronics product first under relevance");
     }
 
     @Test
@@ -106,7 +106,7 @@ class SearchTest {
                 .products()
                 .get(0);
 
-        assertEquals(2L, summary.id());
+        assertEquals("2", summary.id());
         assertEquals("Wireless Mouse", summary.name());
         assertEquals(new BigDecimal("25.00"), summary.price());
         assertEquals("electronics", summary.category());
@@ -132,11 +132,11 @@ class SearchTest {
         assertEquals(Search.Sort.RELEVANCE, Search.Sort.from(null));
     }
 
-    private static List<Long> ids(Search.Result result) {
+    private static List<String> ids(Search.Result result) {
         return result.products().stream().map(Search.Summary::id).toList();
     }
 
-    private static Product product(Long id, String name, String description, String price, String category) {
+    private static Product product(String id, String name, String description, String price, String category) {
         return new Product(id, name, description, new BigDecimal(price), name + ".png",
                 new Category(null, category, category + " description"));
     }
