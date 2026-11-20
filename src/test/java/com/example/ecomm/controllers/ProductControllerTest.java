@@ -1,6 +1,5 @@
 package com.example.ecomm.controllers;
 
-import com.example.ecomm.clients.AuthClient;
 import com.example.ecomm.mappers.ProductMapper;
 import com.example.ecomm.models.Product;
 import com.example.ecomm.services.IProductService;
@@ -35,8 +34,6 @@ public class ProductControllerTest {
     @MockitoBean("storageProductService") private IProductService storageProductService;
     @MockitoBean("dummyJsonProductService") private IProductService dummyJsonProductService;
     @MockitoBean private PitchService pitchService;
-    // TokenCheckFilter is part of the web slice and needs its collaborator.
-    @MockitoBean private AuthClient authClient;
 
     @Test
     void getProductById_unknownId_returns404() throws Exception {

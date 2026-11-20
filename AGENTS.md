@@ -8,7 +8,7 @@ Notes for anyone (human or AI agent) working in this repo. Verified against the 
 **MySQL + JPA/Hibernate**, with a Groq LLM call for marketing pitches and a hand-rolled token-check filter for auth.
 
 - Build: Maven (`pom.xml`), `source/target` Java **17**
-- Packaging: **WAR** (`spring-boot-tomcat` is `provided`) — runs embedded via `spring-boot:run`, or deployable to an external Tomcat
+- Packaging: executable **JAR** with embedded Tomcat
 - Runtime observed: Java 21.0.8, Hibernate 7.4.5.Final, MySQL 9.5
 - JSON is **Jackson 3** (`tools.jackson.databind.*`, not `com.fasterxml.jackson.databind.*`); `Optional` support is
   built into databind, so `Optional` fields deserialize without an extra module.
@@ -61,7 +61,6 @@ Required env vars: `GROQ_API_KEY` (for `PitchService`), `AUTH_SERVICE_URL` (defa
 ```
 src/main/java/com/example/ecomm/
 ├── EcommApplication.java        @SpringBootApplication entry point
-├── ServletInitializer.java      WAR bootstrap for external Tomcat
 ├── controllers/ProductController.java     all endpoints (no class-level @RequestMapping)
 ├── services/IProductService.java          interface
 ├── services/StorageProductService.java    @Service @Primary — the DB-backed impl actually injected

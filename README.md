@@ -1,6 +1,6 @@
 # ShopNest product catalog
 
-ShopNest is a Spring Boot REST API for managing products and categories in MySQL. It supports soft deletion, product pitches generated through Groq, and a supplier import endpoint. The project targets Java 17 and is packaged as a WAR.
+ShopNest is a Spring Boot REST API for managing products and categories in MySQL. It supports soft deletion, product pitches generated through Groq, and a supplier import endpoint. The project targets Java 17 and is packaged as an executable JAR with embedded Tomcat.
 
 ## Getting started
 
@@ -61,4 +61,9 @@ The full test suite includes a Spring context test that requires the configured 
 ./mvnw -B test -Dtest=ProductMapperTest
 ```
 
-The resulting WAR can be deployed to an external Tomcat; `spring-boot:run` starts the application with embedded Tomcat.
+To build and run the executable JAR with tests skipped:
+
+```sh
+./mvnw -q -DskipTests clean package
+java -jar target/ecomm-0.0.1-SNAPSHOT.jar
+```
